@@ -389,6 +389,7 @@ void AisDecoder::enableMsgTypes(const std::set<int> &_types)
     setMsgCallback(3, &AisDecoder::decodeType123, _types);
     setMsgCallback(4, &AisDecoder::decodeType411, _types);
     setMsgCallback(5, &AisDecoder::decodeType5, _types);
+    setMsgCallback(8, &AisDecoder::decodeType8, _types);
     setMsgCallback(9, &AisDecoder::decodeType9, _types);
     setMsgCallback(11, &AisDecoder::decodeType411, _types);
     setMsgCallback(18, &AisDecoder::decodeType18, _types);
@@ -492,6 +493,51 @@ void AisDecoder::decodeType5(PayloadBuffer &_buffer, unsigned int _uMsgType, int
     _buffer.getUnsignedValue(1);                    // spare
 
     onType5(mmsi, imo, callsign, name, type, toBow, toStern, toPort, toStarboard, fixType, etaMonth, etaDay, etaHour, etaMinute, draught, destination);
+}
+
+/* decode Binary broadcast message (type nibble already pulled from buffer) */
+void AisDecoder::decodeType8(PayloadBuffer &_buffer, unsigned int _uMsgType, int _iPayloadSizeBits)
+{
+    if (_iPayloadSizeBits < 42)
+    {
+        throw std::runtime_error("Invalid payload size (" + std::to_string(_iPayloadSizeBits) + " bits) for messag type " + std::to_string(_uMsgType));
+    }
+
+    // decode message fields (binary buffer has to go through all fields, but some fields are not used)
+    _buffer.getUnsignedValue(2);     // repeatIndicator
+    auto mmsi = _buffer.getUnsignedValue(30);
+    _buffer.getUnsignedValue(2);     // Spare
+    auto AppIdentifier = _buffer.getUnsignedValue(16);
+    auto Dac = (AppIdentifier >> 6) & 0x3ff;
+    auto FuncId = AppIdentifier & 0x3F;
+
+    if (Dac == 200 && FuncId == 10)
+        decodeType8_200_10(_buffer, _uMsgType, mmsi, _iPayloadSizeBits);
+    else
+        onType8_other(mmsi, Dac, FuncId, _buffer, _iPayloadSizeBits);
+}
+
+/// decode Inland specific message FI 10: Inland ship static and voyage related data
+void AisDecoder::decodeType8_200_10(PayloadBuffer &_buffer, unsigned int _uMsgType, unsigned int _uMmsi, int _iPayloadSizeBits)
+{
+    if (_iPayloadSizeBits < 168)
+    {
+        throw std::runtime_error("Invalid payload size (" + std::to_string(_iPayloadSizeBits) + " bits) for messag type 8_200_10");
+    }
+
+    // decode message fields (binary buffer has to go through all fields, but some fields are not used)
+    // at this point bitindex is right after the application identifier, at the start of application data,
+    // so for this specific message at the start of ENI
+    auto Eni = _buffer.getString(48);
+    auto Length = _buffer.getUnsignedValue(13);
+    auto Beam = _buffer.getUnsignedValue(10);
+    auto EriShipType = _buffer.getUnsignedValue(14);
+    auto HazardousCargo = _buffer.getUnsignedValue(3);
+    auto MaxPresentStaticDraugt = _buffer.getUnsignedValue(11);
+    auto LoadedStatus = _buffer.getUnsignedValue(2);
+    // TODO: quality of speed information, quality of heading information
+
+    onType8_200_10(_uMmsi, Eni, Length, Beam, EriShipType, HazardousCargo, MaxPresentStaticDraugt, LoadedStatus);
 }
 
 /* decode Standard SAR Aircraft Position Report */

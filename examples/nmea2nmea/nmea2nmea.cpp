@@ -86,6 +86,10 @@ class AisType5Db : public AIS::AisDecoder
         m_db.updateVesselType(_uMmsi, _uType);
     }
     
+    virtual void onType8_200_10(unsigned int _uMmsi, const std::string &_strEni, unsigned int _uLength, unsigned int _uBeam, unsigned int _uEriShipType,
+                             unsigned int _uHazardousCargo, unsigned int _uMaxPresentStaticDraugt, unsigned int _uLoadedStatus) override {}
+    virtual void onType8_other(unsigned int _uMmsi, unsigned int _uDac, unsigned int _FuncId, const AIS::PayloadBuffer &_buffer, int _iPayloadSizeBits) override {}
+
     virtual void onType9(unsigned int _uMmsi, unsigned int _uSog, bool _bPosAccuracy, int _iPosLon, int _iPosLat, int _iCog, unsigned int _iAltitude) override {}
     
     virtual void onType18(unsigned int _uMmsi, unsigned int _uSog, bool _bPosAccuracy, int _iPosLon, int _iPosLat, int _iCog, int _iHeading) override {}
@@ -246,6 +250,10 @@ class AisNmeaFilter : public AIS::AisDecoder
             }
         }
     }
+
+    virtual void onType8_200_10(unsigned int _uMmsi, const std::string &_strEni, unsigned int _uLength, unsigned int _uBeam, unsigned int _uEriShipType,
+                             unsigned int _uHazardousCargo, unsigned int _uMaxPresentStaticDraugt, unsigned int _uLoadedStatus) override {}
+    virtual void onType8_other(unsigned int _uMmsi, unsigned int _uDac, unsigned int _FuncId, const AIS::PayloadBuffer &_buffer, int _iPayloadSizeBits) override {}
 
     virtual void onType9(unsigned int _uMmsi, unsigned int _uSog, bool _bPosAccuracy, int _iPosLon, int _iPosLat, int _iCog, unsigned int _iAltitude) override
     {

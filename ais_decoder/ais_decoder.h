@@ -279,6 +279,14 @@ namespace AIS
                              unsigned int _uType, unsigned int _uToBow, unsigned int _uToStern, unsigned int _uToPort, unsigned int _uToStarboard, unsigned int _uFixType,
                              unsigned int _uEtaMonth, unsigned int _uEtaDay, unsigned int _uEtaHour, unsigned int _uEtaMinute, unsigned int _uDraught,
                              const std::string &_strDestination) = 0;
+
+        // onType8_... callbacks: The full payload buffer is passed, with bit index reset to the very beginning
+        // onType8_xxx_yy: specific Application Identifiers (DAC=xxx, FI=yy)
+        // onType8_200_10: Inland specific message FI 10: Inland ship static and voyage related data
+        virtual void onType8_200_10(unsigned int _uMmsi, const std::string &_strEni, unsigned int _uLength, unsigned int _uBeam, unsigned int _uEriShipType,
+                             unsigned int _uHazardousCargo, unsigned int _uMaxPresentStaticDraugt, unsigned int _uLoadedStatus) = 0;
+        // onType8_other: Message type 8 not matching any of the above Application Identifiers
+        virtual void onType8_other(unsigned int _uMmsi, unsigned int _uDac, unsigned int _uFuncId, const PayloadBuffer &_buffer, int _iPayloadSizeBits) = 0;
         
         virtual void onType9(unsigned int _uMmsi, unsigned int _uSog, bool _bPosAccuracy, int _iPosLon, int _iPosLat, int _iCog, unsigned int _iAltitude) = 0;
         
@@ -336,6 +344,12 @@ namespace AIS
         
         /// decode Voyage Report and Static Data (type nibble already pulled from buffer)
         void decodeType5(PayloadBuffer &_buffer, unsigned int _uMsgType, int _iPayloadSizeBits);
+
+        /// decode Binary broadcast message (type nibble already pulled from buffer)
+        void decodeType8(PayloadBuffer &_buffer, unsigned int _uMsgType, int _iPayloadSizeBits);
+
+        /// decode Inland specific message FI 10: Inland ship static and voyage related data
+        void decodeType8_200_10(PayloadBuffer &_buffer, unsigned int _uMsgType, unsigned int _uMmsi, int _iPayloadSizeBits);
         
         /// decode Standard SAR Aircraft Position Report
         void decodeType9(PayloadBuffer &_buffer, unsigned int _uMsgType, int _iPayloadSizeBits);

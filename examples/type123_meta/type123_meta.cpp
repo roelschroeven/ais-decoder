@@ -97,6 +97,11 @@ class AisCsvDecoder : public AIS::AisDecoder
                          unsigned int, unsigned int, unsigned int, unsigned int, unsigned int,
                          const std::string &) override {}
 
+    virtual void onType8_200_10(unsigned int _uMmsi, const std::string &_strEni, unsigned int _uLength, unsigned int _uBeam, unsigned int _uEriShipType,
+                             unsigned int _uHazardousCargo, unsigned int _uMaxPresentStaticDraugt, unsigned int _uLoadedStatus) override {}
+                             
+    virtual void onType8_other(unsigned int _uMmsi, unsigned int _uDac, unsigned int _FuncId, const AIS::PayloadBuffer &_buffer, int _iPayloadSizeBits) override {}
+
 	virtual void onType9(unsigned int, unsigned int, bool, int, int, int, unsigned int) override {}
 
 	virtual void onType18(unsigned int, unsigned int, bool, int, int, int, int) override {}

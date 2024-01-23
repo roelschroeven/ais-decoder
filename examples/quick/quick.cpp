@@ -45,6 +45,8 @@ void pushSentence(const char *_pszSentence)
     pushAisSentence(_pszSentence, strlen(_pszSentence));
 }
 
+#include <iostream>
+
 int main()
 {
     pushSentence("!AIVDM,1,1,,A,13HOI:0P0000VOHLCnHQKwvL05Ip,0*23\n");
@@ -53,27 +55,18 @@ int main()
     pushSentence("!AIVDM,1,1,,B,13eaJF0P00Qd388Eew6aagvH85Ip,0*45\n");
     pushSentence("!AIVDM,1,1,,A,14eGrSPP00ncMJTO5C6aBwvP2D0?,0*7A,1452026224\n");
     pushSentence("\\c:1452026224\\!AIVDM,1,1,,A,15MrVH0000KH<:V:NtBLoqFP2H9:,0*2F\n");
+    pushSentence("!AIVDM,1,1,,A,83`fLjPj2d<dtN>LtAK@a?a@6Tt0,0*16\n"); // inland static & voyage related data
     
     // NOTE: popping many more messages than sentences pushed
-    auto msg1 = popAisMessage();
-    auto msg2 = popAisMessage();
-    auto msg3 = popAisMessage();
-    auto msg4 = popAisMessage();
-    auto msg5 = popAisMessage();
-    auto msg6 = popAisMessage();
-    auto msg7 = popAisMessage();
-    auto msg8 = popAisMessage();
-    auto msg9 = popAisMessage();
-    auto msg10 = popAisMessage();
-    auto msg11 = popAisMessage();
-    auto msg12 = popAisMessage();
-    auto msg13 = popAisMessage();
-    auto msg14 = popAisMessage();
-    auto msg15 = popAisMessage();
-    auto msg16 = popAisMessage();
-    auto msg17 = popAisMessage();
-    auto msg18 = popAisMessage();
-    auto msg19 = popAisMessage();
+    for (int i = 0; i < 100; ++i)
+      {
+        auto msg = popAisMessage();
+        if (msg.empty())
+          continue;
+        for (std::map<std::string, std::string>::const_iterator it = msg.begin(); it != msg.end(); ++it)
+          std::cout << it->first << "   " << it->second << "\n";
+        std::cout << "\n";
+      }
 
     return 0;
 }

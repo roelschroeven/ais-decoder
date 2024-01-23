@@ -138,7 +138,38 @@ class AisQuickDecoder : public AIS::AisDecoder
 
         m_messages.push(std::move(msg));
     }
-    
+
+    virtual void onType8_200_10(unsigned int _uMmsi, const std::string &_strEni, unsigned int _uLength, unsigned int _uBeam, unsigned int _uEriShipType,
+                             unsigned int _uHazardousCargo, unsigned int _uMaxPresentStaticDraugt, unsigned int _uLoadedStatus) override {
+        AisMessage msg;
+        
+        msg.m_fields["msg"] = std::to_string(9);
+        msg.m_fields["mmsi"] = AIS::mmsi_to_string((long)_uMmsi);
+        msg.m_fields["dac"] = std::to_string(200);
+        msg.m_fields["fi"] = std::to_string(10);
+        msg.m_fields["eni"] = _strEni;
+        msg.m_fields["length"] = std::to_string(_uLength) + " dm";
+        msg.m_fields["beam"] = std::to_string(_uBeam) + " dm";
+        msg.m_fields["erishiptype"] = std::to_string(_uEriShipType);
+        msg.m_fields["hazcargo"] = std::to_string(_uHazardousCargo);
+        msg.m_fields["draught"] = std::to_string(_uMaxPresentStaticDraugt) + " cm";
+        msg.m_fields["loadedstatus"] = std::to_string(_uLoadedStatus);
+
+        m_messages.push(std::move(msg));
+    }
+
+    virtual void onType8_other(unsigned int _uMmsi, unsigned int _Dac, unsigned int _FuncId, const AIS::PayloadBuffer &_buffer, int _iPayloadSizeBits) override {
+        AisMessage msg;
+        
+        msg.m_fields["msg"] = std::to_string(9);
+        msg.m_fields["mmsi"] = AIS::mmsi_to_string((long)_uMmsi);
+        msg.m_fields["dac"] = std::to_string(_Dac);
+        msg.m_fields["fi"] = std::to_string(_FuncId);
+        msg.m_fields["payload_size"] = std::to_string(_iPayloadSizeBits) + " bits";
+
+        m_messages.push(std::move(msg));
+    }
+
     virtual void onType9(unsigned int _uMmsi, unsigned int _uSog, bool _bPosAccuracy, int _iPosLon, int _iPosLat, int _iCog, unsigned int _iAltitude) override {
         AisMessage msg;
         
