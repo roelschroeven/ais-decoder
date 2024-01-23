@@ -3,6 +3,7 @@
 #include "strutils.h"
 
 #include <stdlib.h>
+#include <stdexcept>
 
 
 using namespace AIS;
@@ -817,9 +818,11 @@ bool AisDecoder::checkCrc(const StringRef &_strPayload)
             };
             
             uint16_t iCrc = (ascii_t[(*(pCrc + 1) - '0') & 31] << 4) +
-                            ascii_t[(*(pCrc + 2) - '0') & 31];
+                             ascii_t[(*(pCrc + 2) - '0') & 31];
             
-            if (*_strPayload.data() == '!')
+            const char pCh = *_strPayload.data();
+            if ( (pCh == '!') ||
+                 (pCh == '$') )
             {
                 uint16_t iCrcCalc = (int)AIS::crc(StringRef(_strPayload.data() + 1, _strPayload.size() - 4));
                 return iCrc == iCrcCalc;
@@ -841,7 +844,8 @@ bool AisDecoder::checkTalkerId(const StringRef &_strTalkerId)
     if (_strTalkerId.size() > 2)
     {
         char chA = _strTalkerId.data()[0];
-        if (chA == '!')
+        if ( (chA == '!') ||
+             (chA == '$') )
         {
             chA = _strTalkerId.data()[1];
         }
